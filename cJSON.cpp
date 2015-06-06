@@ -22,6 +22,7 @@
 
 /* cJSON */
 /* JSON parser in C. */
+#include "stdafx.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -34,12 +35,20 @@
 
 static const char *ep;
 
-const char *cJSON_GetErrorPtr() {return ep;}
+const char *cJSON_GetErrorPtr()
+{
+	return ep;
+}
 
 static int cJSON_strcasecmp(const char *s1,const char *s2)
 {
-	if (!s1) return (s1==s2)?0:1;if (!s2) return 1;
-	for(; tolower(*s1) == tolower(*s2); ++s1, ++s2)	if(*s1 == 0)	return 0;
+	if (!s1) 
+		return (s1==s2)?0:1;
+	if (!s2) 
+		return 1;
+	for(; tolower(*s1) == tolower(*s2); ++s1, ++s2)	
+		if(*s1 == 0)	
+			return 0;
 	return tolower(*(const unsigned char *)s1) - tolower(*(const unsigned char *)s2);
 }
 
@@ -52,7 +61,8 @@ static char* cJSON_strdup(const char* str)
       char* copy;
 
       len = strlen(str) + 1;
-      if (!(copy = (char*)cJSON_malloc(len))) return 0;
+      if (!(copy = (char*)cJSON_malloc(len))) 
+		  return 0;
       memcpy(copy,str,len);
       return copy;
 }
@@ -73,7 +83,8 @@ void cJSON_InitHooks(cJSON_Hooks* hooks)
 static cJSON *cJSON_New_Item()
 {
 	cJSON* node = (cJSON*)cJSON_malloc(sizeof(cJSON));
-	if (node) memset(node,0,sizeof(cJSON));
+	if (node) 
+		memset(node,0,sizeof(cJSON));
 	return node;
 }
 
@@ -84,9 +95,12 @@ void cJSON_Delete(cJSON *c)
 	while (c)
 	{
 		next=c->next;
-		if (!(c->type&cJSON_IsReference) && c->child) cJSON_Delete(c->child);
-		if (!(c->type&cJSON_IsReference) && c->valuestring) cJSON_free(c->valuestring);
-		if (c->string) cJSON_free(c->string);
+		if (!(c->type&cJSON_IsReference) && c->child) 
+			cJSON_Delete(c->child);
+		if (!(c->type&cJSON_IsReference) && c->valuestring) 
+			cJSON_free(c->valuestring);
+		if (c->string)
+			cJSON_free(c->string);
 		cJSON_free(c);
 		c=next;
 	}
@@ -99,12 +113,25 @@ static const char *parse_number(cJSON *item,const char *num)
 
 	/* Could use sscanf for this? */
 	if (*num=='-') sign=-1,num++;	/* Has sign? */
-	if (*num=='0') num++;			/* is zero */
-	if (*num>='1' && *num<='9')	do	n=(n*10.0)+(*num++ -'0');	while (*num>='0' && *num<='9');	/* Number? */
-	if (*num=='.') {num++;		do	n=(n*10.0)+(*num++ -'0'),scale--; while (*num>='0' && *num<='9');}	/* Fractional part? */
+	if (*num=='0') 
+		num++;			/* is zero */
+	if (*num>='1' && *num<='9')	
+		do	n=(n*10.0)+(*num++ -'0');	
+	while (*num>='0' && *num<='9');	/* Number? */
+	if (*num=='.') 
+	{
+		num++;		
+		do	n=(n*10.0)+(*num++ -'0'),scale--; 
+		while (*num>='0' && *num<='9');
+	}	/* Fractional part? */
 	if (*num=='e' || *num=='E')		/* Exponent? */
-	{	num++;if (*num=='+') num++;	else if (*num=='-') signsubscale=-1,num++;		/* With sign? */
-		while (*num>='0' && *num<='9') subscale=(subscale*10)+(*num++ - '0');	/* Number? */
+	{	
+		num++;if (*num=='+') 
+			num++;	
+		else if (*num=='-') 
+			signsubscale=-1,num++;		/* With sign? */
+		while (*num>='0' && *num<='9') 
+			subscale=(subscale*10)+(*num++ - '0');	/* Number? */
 	}
 
 	n=sign*n*pow(10.0,(scale+subscale*signsubscale));	/* number = +/- number.fraction * 10^+/- exponent */
